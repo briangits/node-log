@@ -1,6 +1,7 @@
 import { LogLevel } from './LogLevel'
 import { MaybePromise } from './MaybePromise'
 import { AsyncLogWriter, LogWriter } from './writer'
+import { DefaultLoggerConfig, LoggerConfig } from './LoggerConfig'
 
 /**
  * A logger that accepts log records and forwards them to a {@link LogWriter}.
@@ -8,15 +9,22 @@ import { AsyncLogWriter, LogWriter } from './writer'
  * The generic `Writer` type controls whether logging is synchronous or asynchronous.
  */
 export class Logger<Writer extends LogWriter | AsyncLogWriter = LogWriter> {
+    private readonly config: LoggerConfig
+
     /**
      * Creates a new `Logger` instance.
      * @param writer - The log writer to receive records.
-     * @param tags - Optional tags to attach to every record.
+     * @param config - Partial configuration. Missing options use {@link DefaultLoggerConfig}.
      */
     constructor(
         private readonly writer: Writer,
-        private readonly tags: string[] = []
-    ) {}
+        config: Partial<LoggerConfig> = {}
+    ) {
+        this.config = {
+            ...DefaultLoggerConfig,
+            ...config
+        }
+    }
 
     /**
      * Extracts an optional message string from the argument list.
@@ -45,17 +53,22 @@ export class Logger<Writer extends LogWriter | AsyncLogWriter = LogWriter> {
 
     /**
      * Writes a log record at the specified level.
+     *
+     * If `level` is below the configured minimum, the call is silently ignored.
+     *
      * @param level - The severity level.
      * @param args - The log message and any additional data.
      * @returns A `Promise<void>` when using an {@link AsyncLogWriter}, otherwise `void`.
      */
     log(level: LogLevel, ...args: unknown[]): MaybePromise<Writer, void> {
+        if (level < this.config.level) return void 0 as MaybePromise<Writer, void>
+
         const { msg, args: _args } = this.parseArgs(...args)
 
         return this.writer.write({
             level,
             time: new Date(),
-            tags: this.tags,
+            tags: this.config.tags,
             message: msg,
             args: _args
         }) as MaybePromise<Writer, void>
@@ -107,5 +120,17 @@ export class Logger<Writer extends LogWriter | AsyncLogWriter = LogWriter> {
      */
     critical(...args: unknown[]): MaybePromise<typeof this.writer, void> {
         return this.log(LogLevel.CRITICAL, ...args)
+    }
+
+    /**
+     * Creates a new `Logger` with additional tags appended to the existing ones.
+     * @param tags - Tags to append.
+     * @returns A new `Logger` instance sharing the same writer and config.
+     */
+    tag(...tags: string[]) {
+        return new Logger(this.writer, {
+            ...this.config,
+            tags: [...this.config.tags, ...tags]
+        })
     }
 }

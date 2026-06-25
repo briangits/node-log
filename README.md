@@ -6,7 +6,8 @@
 
 - **Sync & Async Writers** — Log to the console synchronously or to files asynchronously.
 - **Log Levels** — `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `CRITICAL`.
-- **Tags** — Attach contextual tags to every log record.
+- **Level Filtering** — Skip low-priority records below a configurable threshold.
+- **Tags** — Attach contextual tags to every log record and create child loggers with more tags.
 - **Structured Output** — Built-in JSON Lines writer with automatic serialization of `Error`, `Map`, `Set`, and `bigint`.
 - **Customizable Formatting** — Console writer supports format strings with placeholders.
 - **TypeScript First** — Fully typed with declaration maps.
@@ -28,7 +29,7 @@ yarn add @briangits/node-log
 ## Quick Start
 
 ```typescript
-import { Logger, ConsoleLogWriter, LogLevel } from '@briangits/node-log'
+import { Logger, ConsoleLogWriter } from '@briangits/node-log'
 
 const logger = new Logger(new ConsoleLogWriter())
 
@@ -43,6 +44,44 @@ logger.error('Connection failed', new Error('timeout'))
 [2026-06-25T06:30:00.000Z] [INFO]: Server started on port 3000
 [2026-06-25T06:30:00.001Z] [WARN]: High memory usage { used: '1.2GB' }
 [2026-06-25T06:30:00.002Z] [ERROR]: Connection failed Error: timeout
+```
+
+## Configuration
+
+`Logger` accepts a partial `LoggerConfig` object as its second argument. Unspecified options fall back to `DefaultLoggerConfig`.
+
+```typescript
+import { Logger, ConsoleLogWriter, LogLevel } from '@briangits/node-log'
+
+const logger = new Logger(new ConsoleLogWriter(), {
+    level: LogLevel.WARN,
+    tags: ['app']
+})
+
+logger.info('ignored')   // below WARN, silently dropped
+logger.warn('visible')   // written with tag [app]
+```
+
+### `LoggerConfig`
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `level` | `LogLevel` | `LogLevel.INFO` | Minimum level to output. Records below this are discarded. |
+| `tags` | `string[]` | `[]` | Tags attached to every record. |
+
+### Child Loggers with `tag()`
+
+Use `tag()` to create a new logger that inherits the current configuration and appends additional tags.
+
+```typescript
+const http = logger.tag('http')
+
+http.info('request received')
+// => tags: ['app', 'http']
+
+const db = logger.tag('db')
+db.error('connection timeout')
+// => tags: ['app', 'db']
 ```
 
 ## Writers
@@ -136,18 +175,19 @@ logger.info('Sent to syslog')
 The main entry point for creating log records.
 
 ```typescript
-new Logger(writer: Writer, tags?: string[])
+new Logger(writer: Writer, config?: Partial<LoggerConfig>)
 ```
 
-| Method                | Description                             |
-| --------------------- | --------------------------------------- |
-| `log(level, ...args)` | Write a record at the given `LogLevel`. |
-| `trace(...args)`      | Write a `TRACE` record.                 |
-| `debug(...args)`      | Write a `DEBUG` record.                 |
-| `info(...args)`       | Write an `INFO` record.                 |
-| `warn(...args)`       | Write a `WARN` record.                  |
-| `error(...args)`      | Write an `ERROR` record.                |
-| `critical(...args)`   | Write a `CRITICAL` record.              |
+| Method                | Description                                                             |
+| --------------------- | ----------------------------------------------------------------------- |
+| `log(level, ...args)` | Write a record at the given `LogLevel`. Ignored when below the minimum. |
+| `trace(...args)`      | Write a `TRACE` record.                                                 |
+| `debug(...args)`      | Write a `DEBUG` record.                                                 |
+| `info(...args)`       | Write an `INFO` record.                                                 |
+| `warn(...args)`       | Write a `WARN` record.                                                  |
+| `error(...args)`      | Write an `ERROR` record.                                                |
+| `critical(...args)`   | Write a `CRITICAL` record.                                              |
+| `tag(...tags)`        | Returns a new `Logger` with the additional tags appended.               |
 
 When the writer is an `AsyncLogWriter`, all methods return `Promise<void>`; otherwise they return `void`.
 
@@ -173,6 +213,15 @@ interface LogRecord {
     tags: string[]
     message: string | undefined
     args: unknown[]
+}
+```
+
+### `LoggerConfig`
+
+```typescript
+interface LoggerConfig {
+    tags: string[]
+    level: LogLevel
 }
 ```
 
