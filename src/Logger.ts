@@ -1,7 +1,7 @@
+import { DefaultLoggerConfig, LoggerConfig } from './LoggerConfig'
 import { LogLevel } from './LogLevel'
 import { MaybePromise } from './MaybePromise'
 import { AsyncLogWriter, LogWriter } from './writer'
-import { DefaultLoggerConfig, LoggerConfig } from './LoggerConfig'
 
 /**
  * A logger that accepts log records and forwards them to a {@link LogWriter}.

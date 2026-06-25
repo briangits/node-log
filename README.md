@@ -58,16 +58,16 @@ const logger = new Logger(new ConsoleLogWriter(), {
     tags: ['app']
 })
 
-logger.info('ignored')   // below WARN, silently dropped
-logger.warn('visible')   // written with tag [app]
+logger.info('ignored') // below WARN, silently dropped
+logger.warn('visible') // written with tag [app]
 ```
 
 ### `LoggerConfig`
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
+| Option  | Type       | Default         | Description                                                |
+| ------- | ---------- | --------------- | ---------------------------------------------------------- |
 | `level` | `LogLevel` | `LogLevel.INFO` | Minimum level to output. Records below this are discarded. |
-| `tags` | `string[]` | `[]` | Tags attached to every record. |
+| `tags`  | `string[]` | `[]`            | Tags attached to every record.                             |
 
 ### Child Loggers with `tag()`
 
