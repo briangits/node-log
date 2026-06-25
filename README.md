@@ -1,3 +1,3 @@
-# nodestrap
+# node-log
 
-Node.js library template 
+Logging for Node.js

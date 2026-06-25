@@ -1,19 +1,21 @@
 {
-    "name": "@briangits/nodestrap",
+    "name": "@briangits/node-log",
     "version": "0.0.1",
-    "description": "Node.js library template",
+    "description": "Logging for Node.js",
     "author": "Gits (https://github.com/briangits)",
     "license": "Apache-2.0",
     "keywords": [
-        "template"
+        "log",
+        "logging",
+        "logger"
     ],
-    "homepage": "https://github.com/briangits/nodestrap#readme",
+    "homepage": "https://github.com/briangits/node-log#readme",
     "bugs": {
-        "url": "https://github.com/briangits/node-lib-template/issues"
+        "url": "https://github.com/briangits/node-log/issues"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/briangits/node-lib-template.git"
+        "url": "git+https://github.com/briangits/node-log.git"
     },
     "type": "module",
     "main": "./dist/index.js",
