@@ -1,0 +1,65 @@
+{
+    "name": "@briangits/nodestrap",
+    "version": "0.0.1",
+    "description": "Node.js library template",
+    "author": "Gits (https://github.com/briangits)",
+    "license": "Apache-2.0",
+    "keywords": [
+        "template"
+    ],
+    "homepage": "https://github.com/briangits/nodestrap#readme",
+    "bugs": {
+        "url": "https://github.com/briangits/node-lib-template/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/briangits/node-lib-template.git"
+    },
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "sideEffects": false,
+    "scripts": {
+        "lint": "prettier --check '**/*' --ignore-path .gitignore --ignore-unknown",
+        "format": "prettier --write '**/*' --ignore-path .gitignore --ignore-unknown",
+        "build": "tsdown -c tsdown.config.ts",
+        "prepublishOnly": "pnpm run lint && pnpm run build"
+    },
+    "devEngines": {
+        "packageManager": {
+            "name": "pnpm",
+            "version": "^11.7.0",
+            "onFail": "download"
+        }
+    },
+    "devDependencies": {
+        "@types/node": "^25.9.3",
+        "prettier": "^3.8.4",
+        "prettier-plugin-organize-imports": "^4.3.0",
+        "tsdown": "^0.22.3"
+    },
+    "prettier": {
+        "printWidth": 100,
+        "tabWidth": 4,
+        "useTabs": false,
+        "semi": false,
+        "singleQuote": true,
+        "trailingComma": "none",
+        "bracketSpacing": true,
+        "arrowParens": "avoid",
+        "endOfLine": "lf",
+        "plugins": [
+            "prettier-plugin-organize-imports"
+        ]
+    }
+}
