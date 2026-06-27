@@ -1,17 +1,15 @@
 # node-log
 
-> Logging for Node.js with typed writers, log levels, and structured output.
+> Logging for Node.js
 
 ## Features
 
-- **Sync & Async Writers** — Log to the console synchronously or to files asynchronously.
-- **Log Levels** — `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `CRITICAL`.
-- **Level Filtering** — Skip low-priority records below a configurable threshold.
-- **Tags** — Attach contextual tags to every log record and create child loggers with more tags.
-- **Structured Output** — Built-in JSON Lines writer with automatic serialization of `Error`, `Map`, `Set`, and `bigint`.
-- **Customizable Formatting** — Console writer supports format strings with placeholders.
-- **TypeScript First** — Fully typed with declaration maps.
-- **Dual Format** — Ships both ESM and CJS builds.
+- Sync and Async Log Writes.
+- Log Levels, `TRACE` - `CRITICAL` with configurable filtering.
+- Contextual tags for every record and are inherited by child loggers.
+- Structured JSON Lines output with automatic serialization of Errors and other data types.
+- Customizable console format strings with placeholders.
+- Ships both ESM and CJS builds.
 
 ## Installation
 
@@ -64,10 +62,10 @@ logger.warn('visible') // written with tag [app]
 
 ### `LoggerConfig`
 
-| Option  | Type       | Default         | Description                                                |
-| ------- | ---------- | --------------- | ---------------------------------------------------------- |
-| `level` | `LogLevel` | `LogLevel.INFO` | Minimum level to output. Records below this are discarded. |
-| `tags`  | `string[]` | `[]`            | Tags attached to every record.                             |
+| Option  | Type       | Default         | Description                                                   |
+| ------- | ---------- | --------------- | ------------------------------------------------------------- |
+| `level` | `LogLevel` | `LogLevel.INFO` | Minimum level to output. Logs below this level are discarded. |
+| `tags`  | `string[]` | `[]`            | Tags attached to every log record.                            |
 
 ### Child Loggers with `tag()`
 
@@ -86,7 +84,8 @@ db.error('connection timeout')
 
 ## Writers
 
-Writers are the target destination for log records. The library provides two built-in writers and a simple interface for creating your own.
+Writers define the target destination for log records.
+The library provides two built-in writers and a simple interface for creating your own.
 
 ### ConsoleLogWriter
 
@@ -157,6 +156,7 @@ Implement `LogWriter` for synchronous output or `AsyncLogWriter` for asynchronou
 
 ```typescript
 import { LogWriter, LogRecord, Logger } from '@briangits/node-log'
+import { JSONLFileLogWriter } from './JSONLFileLogWriter'
 
 class SyslogWriter implements LogWriter {
     write(log: LogRecord): void {
@@ -166,6 +166,10 @@ class SyslogWriter implements LogWriter {
 
 const logger = new Logger(new SyslogWriter())
 logger.info('Sent to syslog')
+
+// You can await async log writes when using an AsyncLogWriter
+const logger = new Logger(new JSONLFileLogWriter('app.log'))
+await logger.info('Written to app.log')
 ```
 
 ## API Reference
@@ -178,16 +182,16 @@ The main entry point for creating log records.
 new Logger(writer: Writer, config?: Partial<LoggerConfig>)
 ```
 
-| Method                | Description                                                             |
-| --------------------- | ----------------------------------------------------------------------- |
-| `log(level, ...args)` | Write a record at the given `LogLevel`. Ignored when below the minimum. |
-| `trace(...args)`      | Write a `TRACE` record.                                                 |
-| `debug(...args)`      | Write a `DEBUG` record.                                                 |
-| `info(...args)`       | Write an `INFO` record.                                                 |
-| `warn(...args)`       | Write a `WARN` record.                                                  |
-| `error(...args)`      | Write an `ERROR` record.                                                |
-| `critical(...args)`   | Write a `CRITICAL` record.                                              |
-| `tag(...tags)`        | Returns a new `Logger` with the additional tags appended.               |
+| Method                | Description                                               |
+| --------------------- | --------------------------------------------------------- |
+| `log(level, ...args)` | Write a record at the given `LogLevel.                    |
+| `trace(...args)`      | Write a `TRACE` record.                                   |
+| `debug(...args)`      | Write a `DEBUG` record.                                   |
+| `info(...args)`       | Write an `INFO` record.                                   |
+| `warn(...args)`       | Write a `WARN` record.                                    |
+| `error(...args)`      | Write an `ERROR` record.                                  |
+| `critical(...args)`   | Write a `CRITICAL` record.                                |
+| `tag(...tags)`        | Returns a new `Logger` with the additional tags appended. |
 
 When the writer is an `AsyncLogWriter`, all methods return `Promise<void>`; otherwise they return `void`.
 
