@@ -41,6 +41,28 @@ export class ConsoleLogWriter implements LogWriter {
      * @param log - The log record to write.
      */
     write(log: LogRecord): void {
-        console.log(...this.fmt(log))
+        let writer: (...args: any[]) => void
+        switch (log.level) {
+            case LogLevel.TRACE:
+                writer = console.trace
+                break
+            case LogLevel.DEBUG:
+                writer = console.debug
+                break
+            case LogLevel.INFO:
+                writer = console.info
+                break
+            case LogLevel.WARN:
+                writer = console.warn
+                break
+            case LogLevel.ERROR:
+                writer = console.error
+                break
+            case LogLevel.CRITICAL:
+                writer = console.error
+                break
+        }
+
+        writer(...this.fmt(log))
     }
 }
