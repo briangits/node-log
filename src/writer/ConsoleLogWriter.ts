@@ -27,6 +27,9 @@ export class ConsoleLogWriter implements LogWriter {
                 .replace('%t', log.time.toISOString())
                 .replace('%l', LogLevel[log.level])
                 .replace('%tag', tag)
+                // replace empty braces
+                .replace(/(\[\\])/g, '')
+                .trim()
                 .replace('%msg', log.message ?? '')
                 .trim(),
             ...log.args
