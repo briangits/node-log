@@ -20,7 +20,7 @@ export class ConsoleLogWriter implements LogWriter {
      * @returns An array of formatted values and extras.
      */
     private fmt(log: LogRecord): unknown[] {
-        const tag = log.tags.length > 0 ? `[${log.tags.join('/')}]` : ''
+        const tag = log.tags.length > 0 ? log.tags.join('/') : ''
 
         return [
             this.format
